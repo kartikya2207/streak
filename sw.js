@@ -1,5 +1,5 @@
 /* DSA Streak — minimal offline shell cache */
-var CACHE = 'dsa-streak-shell-v1';
+var CACHE = 'dsa-streak-shell-v2';
 var ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,16 @@ self.addEventListener('activate', function (e) {
       return Promise.all(keys.filter(function (k) { return k !== CACHE; })
         .map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      if (list.length) return list[0].focus();
+      return clients.openWindow('./');
+    })
   );
 });
 
