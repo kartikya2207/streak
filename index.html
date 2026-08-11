@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DSA Streak</title>
+<meta name="theme-color" content="#FF5D3A">
+<meta name="description" content="Personal DSA streak scoreboard — Striver A2Z to 379 by Nov 21.">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ☀️ sunrise palette — committed */
+    --bg:#FFF6EC;            /* warm cream sky */
+    --card:#FFFFFF;
+    --ink:#43281C;           /* warm cocoa ink */
+    --muted:#A3806C;
+    --faint:#CDB4A3;
+    --coral:#FF5D3A;         /* primary sun */
+    --coral-deep:#E8431F;
+    --mango:#FF9A3D;
+    --gold:#FFB627;          /* floor gold */
+    --mint:#1FBF8F;          /* success green */
+    --mint-deep:#0E9A70;
+    --berry:#E63946;         /* serious only */
+    --shadow:0 6px 20px rgba(232,110,60,.14);
+    --round:'Baloo 2',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{color-scheme:light}
+  body{background:var(--bg);color:var(--ink);font-family:var(--round);min-height:100vh;
+       display:flex;justify-content:center;padding:14px 12px calc(34px + env(safe-area-inset-bottom));
+       background-image:radial-gradient(1200px 500px at 50% -220px, #FFE9CF 0%, var(--bg) 70%)}
+  .app{width:100%;max-width:420px}
+  button{font-family:var(--round)}
+  button:focus-visible,input:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:12px}
+
+  /* header */
+  header{display:flex;align-items:center;justify-content:space-between;margin:4px 4px 14px}
+  .brand{font-weight:800;font-size:20px;letter-spacing:.01em}
+  .brand .spark{color:var(--coral)}
+  .brand small{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  #gear{background:var(--card);border:none;box-shadow:var(--shadow);color:var(--muted);font-size:17px;
+        cursor:pointer;padding:8px 11px;border-radius:14px;line-height:1}
+
+  .card{background:var(--card);border-radius:22px;padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .h{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+
+  /* streak hero */
+  .hero{background:linear-gradient(135deg,var(--coral) 0%,var(--mango) 100%);color:#fff;overflow:hidden;position:relative}
+  .hero .h{color:rgba(255,255,255,.85)}
+  .streak-row{display:flex;align-items:center;gap:14px;margin-top:4px}
+  .streak-num{font-size:76px;font-weight:800;line-height:1;letter-spacing:-.02em;
+              text-shadow:0 3px 0 rgba(0,0,0,.08)}
+  .streak-unit{font-size:15px;font-weight:700;opacity:.9;margin-top:-8px}
+  .flame{font-size:40px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+         transform-origin:50% 90%;filter:drop-shadow(0 2px 6px rgba(120,20,0,.25))}
+  .flame.dim{opacity:.35;filter:grayscale(.6)}
+  .status{margin-top:8px;font-size:15px;font-weight:600;color:rgba(255,255,255,.95)}
+  .banner{margin-top:12px;border-radius:14px;padding:12px 14px;font-size:14.5px;font-weight:600;line-height:1.45;
+          background:#fff;color:var(--ink)}
+  .banner.red{background:var(--berry);color:#fff;font-weight:700;
+              box-shadow:0 0 0 3px #fff, 0 0 0 6px var(--berry)}
+
+  /* today */
+  .today-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .today-count{font-size:14px;font-weight:600;color:var(--muted)}
+  .today-count b{color:var(--mint-deep);font-size:20px;font-weight:800}
+  #solveBtn{width:100%;border:none;border-radius:20px;padding:20px;cursor:pointer;
+    background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;
+    font-size:24px;font-weight:800;letter-spacing:.03em;
+    box-shadow:0 6px 0 var(--coral-deep),0 10px 24px rgba(232,67,31,.35);
+    transition:transform .08s ease,box-shadow .08s ease}
+  #solveBtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--coral-deep),0 5px 12px rgba(232,67,31,.3)}
+  #solveBtn small{display:block;font-size:12.5px;font-weight:700;opacity:.85;letter-spacing:.05em}
+  .today-sub{display:flex;gap:8px;margin-top:12px}
+  .ghost{flex:1;background:#FFF1E2;border:none;color:#8A5B3F;font-weight:700;
+         border-radius:14px;padding:12px;font-size:13.5px;cursor:pointer}
+  .ghost:disabled{opacity:.45;cursor:default}
+  #undoBtn{flex:0 0 84px}
+
+  /* week strip */
+  .cells{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:12px 0 8px}
+  .cell{aspect-ratio:1/1.1;border-radius:9px;background:#FFF1E2;position:relative;
+        font-size:11px;font-weight:700;color:var(--faint);
+        display:flex;align-items:center;justify-content:center}
+  .cell.done{background:linear-gradient(145deg,var(--mint),var(--mint-deep));color:#fff}
+  .cell.done::after{content:"✓";font-size:13px;font-weight:800}
+  .cell.floor{box-shadow:inset 0 0 0 2.5px var(--gold)}
+  .cell.floor.done{box-shadow:inset 0 0 0 2.5px var(--gold),0 0 0 0 transparent}
+  .cell.tgt{box-shadow:inset 0 0 0 2.5px var(--coral)}
+  .cell.floor.tgt{box-shadow:inset 0 0 0 2.5px var(--gold),0 0 10px rgba(255,93,58,.5)}
+  .legend{display:flex;gap:14px;font-size:11.5px;font-weight:700;color:var(--muted)}
+  .legend .fl{color:#C58900} .legend .tg{color:var(--coral)}
+  .week-line{margin-top:10px;font-size:15px;font-weight:600;color:var(--muted)}
+  .week-line b{color:var(--ink);font-size:18px;font-weight:800}
+  .week-line .bonus{color:var(--mint-deep);font-weight:800}
+
+  /* sheet progress */
+  .countdown{font-size:13px;font-weight:700;color:var(--coral);background:#FFEDE0;
+             border-radius:999px;padding:4px 12px}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center}
+  .bar{height:16px;border-radius:999px;background:#FFF1E2;overflow:hidden;margin:14px 0 8px}
+  .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--coral));border-radius:999px;width:0%;
+        transition:width .6s ease}
+  .sheet-nums{display:flex;justify-content:space-between;font-size:14px;font-weight:600;color:var(--muted)}
+  .sheet-nums b{color:var(--ink);font-size:20px;font-weight:800}
+  .pace{margin-top:8px;font-size:14px;font-weight:600;color:var(--muted)}
+  .pace b{color:var(--coral-deep);font-weight:800}
+
+  /* last 7 days */
+  .dots{display:flex;justify-content:space-between;margin-top:12px}
+  .d{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;font-weight:700;color:var(--muted)}
+  .dot{width:22px;height:22px;border-radius:50%;background:#FFF1E2;display:flex;align-items:center;justify-content:center;
+       font-size:11px;font-weight:800;color:#fff}
+  .dot.on{background:linear-gradient(145deg,var(--mint),var(--mint-deep))}
+  .dot.on::after{content:"✓"}
+  .dot.min{background:var(--gold)}
+  .dot.min::after{content:"–"}
+  .dot.zero{background:#FBD5CB}
+  .dot.pending{background:#FFF1E2;border:2.5px dashed var(--faint)}
+
+  footer{margin-top:8px;text-align:center;font-size:13px;font-weight:600;color:var(--muted);line-height:1.6}
+
+  /* setup + settings */
+  .setup p{font-size:15px;font-weight:600;color:var(--muted);line-height:1.5;margin-top:10px}
+  .setup input{width:100%;margin:14px 0;background:#FFF1E2;border:none;color:var(--ink);
+    font-family:var(--round);font-size:30px;font-weight:800;text-align:center;border-radius:16px;padding:14px}
+  .primary{width:100%;border:none;border-radius:16px;padding:16px;cursor:pointer;
+    background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;
+    font-size:17px;font-weight:800;letter-spacing:.03em;box-shadow:0 4px 0 var(--coral-deep)}
+  .settings-row{display:flex;gap:8px;margin-top:12px}
+  .danger{background:#FDE3E5;color:var(--berry)}
+  .hidden{display:none}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);
+    border-radius:999px;padding:10px 20px;font-size:14px;font-weight:700;
+    color:#FFF6EC;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;z-index:9}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="spark">🔥</span> DSA Streak
+      <small>chal, ek aur — A2Z → 379</small>
+    </div>
+    <button id="gear" aria-label="Settings">⚙️</button>
+  </header>
+
+  <!-- SETUP -->
+  <div class="card setup" id="setupCard">
+    <div class="h">WELCOME · PEHLA STEP</div>
+    <p>How many A2Z problems have you already solved on the sheet? Every solve you log here stacks on top of it.</p>
+    <input id="baseInput" type="number" inputmode="numeric" min="0" max="474" value="133" aria-label="Current A2Z solved count">
+    <button class="primary" id="startBtn">LET'S GO 🚀</button>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card setup hidden" id="settingsCard">
+    <div class="h">SETTINGS</div>
+    <p>Base A2Z count (your sheet number from before this tracker started):</p>
+    <input id="baseEdit" type="number" inputmode="numeric" min="0" max="474" aria-label="Edit base count">
+    <p style="font-size:13px">Deadline is locked: <b>Nov 21, 2026</b>. Floor is locked: <b>10/week</b>. No touchy. 🔒</p>
+    <div class="settings-row">
+      <button class="ghost" id="saveBase">Save</button>
+      <button class="ghost" id="closeSettings">Close</button>
+      <button class="ghost danger" id="resetAll">Reset all</button>
+    </div>
+  </div>
+
+  <div id="main" class="hidden">
+    <!-- STREAK HERO -->
+    <div class="card hero">
+      <div class="h">CURRENT STREAK</div>
+      <div class="streak-row">
+        <div>
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-unit" id="streakUnit">days</div>
+        </div>
+        <div class="flame" id="flame" aria-hidden="true">🔥</div>
+      </div>
+      <div class="status" id="statusLine"></div>
+      <div id="banner" class="hidden" role="alert"></div>
+    </div>
+
+    <!-- TODAY -->
+    <div class="card">
+      <div class="today-head">
+        <div class="h">TODAY</div>
+        <div class="today-count">solved today <b id="todayCount">0</b></div>
+      </div>
+      <button id="solveBtn">＋1 SOLVED<small id="solveSub">chal, ek aur</small></button>
+      <div class="today-sub">
+        <button class="ghost" id="minBtn">🛟 minimum day</button>
+        <button class="ghost" id="undoBtn">− undo</button>
+      </div>
+    </div>
+
+    <!-- WEEK -->
+    <div class="card">
+      <div class="h" id="weekHead">THIS WEEK</div>
+      <div class="cells" id="cells"></div>
+      <div class="legend"><span class="fl">◈ 10 = floor</span><span class="tg" id="tgtLegend">◈ target</span></div>
+      <div class="week-line" id="weekLine"></div>
+    </div>
+
+    <!-- SHEET -->
+    <div class="card">
+      <div class="sheet-head">
+        <div class="h">SHEET → 379</div>
+        <div class="countdown" id="daysLeft"></div>
+      </div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="sheet-nums"><span><b id="totalNum">0</b> / 379</span><span id="pctNum"></span></div>
+      <div class="pace" id="paceLine"></div>
+    </div>
+
+    <!-- LAST 7 -->
+    <div class="card">
+      <div class="h">LAST 7 DAYS</div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <footer>one problem = a valid day 💛<br>zero is the only L.</footer>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
