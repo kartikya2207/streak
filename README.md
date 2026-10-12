@@ -16,6 +16,10 @@ me quietly move the goalposts.
 No accounts, no server, no analytics. Plain HTML/CSS/JS, no build step, and all data lives in
 `localStorage` on the device.
 
+<p align="center"><img src="docs/images/dashboard.png" alt="DSA Streak dashboard" width="320"></p>
+
+*The main screen on day one: streak hero, the big +1 button, this week's cells against the dynamic target, and sheet progress.*
+
 ## What I did
 
 - **Dynamic weekly target** — `max(10, ceil(remaining / weeksLeft))`, recomputed daily. If I fall
